@@ -1,3 +1,4 @@
+from pickle import FALSE
 from django.conf import settings
 from django.urls import reverse
 from django.http import (HttpResponse, HttpResponseRedirect,
@@ -7,7 +8,11 @@ from django.shortcuts import render
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
+import os
+import pyautogui
+import subprocess
 
+test_log=False
 
 def init_saml_auth(req):
     auth = OneLogin_Saml2_Auth(req, custom_base_path=settings.SAML_FOLDER)
@@ -29,6 +34,7 @@ def prepare_django_request(request):
 
 
 def index(request):
+    print("index")
     req = prepare_django_request(request)
     auth = init_saml_auth(req)
     errors = []
@@ -39,15 +45,28 @@ def index(request):
     paint_logout = False
 
     if 'sso' in req['get_data']:
+        print("sso")
         return HttpResponseRedirect(auth.login())
         # If AuthNRequest ID need to be stored in order to later validate it, do instead
         # sso_built_url = auth.login()
         # request.session['AuthNRequestID'] = auth.get_last_request_id()
         # return HttpResponseRedirect(sso_built_url)
     elif 'sso2' in req['get_data']:
+        print("ss2")
         return_to = OneLogin_Saml2_Utils.get_self_url(req) + reverse('attrs')
         return HttpResponseRedirect(auth.login(return_to))
     elif 'slo' in req['get_data']:
+        out = subprocess.check_output(['tasklist','/fi','imagename eq notepad.exe','/fo','csv'])
+        result=out.decode('utf-8')
+        if(result.count("notepad.exe")>1):
+            #no. of open notepad
+            no=result.count("notepad.exe")
+            pyautogui.alert(f"Logout will close {no} application so please save the Application")
+        elif(result.count("notepad.exe")==1):
+            pyautogui.alert("Before clicking ok please Save the Application")
+        else:
+            pass
+            
         name_id = session_index = name_id_format = name_id_nq = name_id_spnq = None
         if 'samlNameId' in request.session:
             name_id = request.session['samlNameId']
@@ -66,6 +85,7 @@ def index(request):
         # request.session['LogoutRequestID'] = auth.get_last_request_id()
         # return HttpResponseRedirect(slo_built_url)
     elif 'acs' in req['get_data']:
+        
         request_id = None
         if 'AuthNRequestID' in request.session:
             request_id = request.session['AuthNRequestID']
@@ -90,6 +110,9 @@ def index(request):
         elif auth.get_settings().is_debug_active():
             error_reason = auth.get_last_error_reason()
     elif 'sls' in req['get_data']:
+        print("sls-data")
+        global test_log
+        test_log=False
         request_id = None
         if 'LogoutRequestID' in request.session:
             request_id = request.session['LogoutRequestID']
@@ -107,10 +130,24 @@ def index(request):
             error_reason = auth.get_last_error_reason()
 
     if 'samlUserdata' in request.session:
+        print("saml-data")
+        
+        test_log=True
         paint_logout = True
         if len(request.session['samlUserdata']) > 0:
             attributes = request.session['samlUserdata'].items()
+            print(attributes)
+    #edited
+    # s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    # s.bind(socket.gethostname(),1234)
+    # s.listen(5)
+    # x=str(test_log)
+    # clientsocket,address=s.accept()
+    # clientsocket.send(bytes(x,"utf-8"))
 
+
+    x=str(test_log)
+    os.system("python server.py "+x)
     return render(request, 'index.html', {'errors': errors, 'error_reason': error_reason, 'not_auth_warn': not_auth_warn, 'success_slo': success_slo,
                                           'attributes': attributes, 'paint_logout': paint_logout})
 
@@ -118,17 +155,18 @@ def index(request):
 def attrs(request):
     paint_logout = False
     attributes = False
+    print("hrllo")
 
     if 'samlUserdata' in request.session:
         paint_logout = True
         if len(request.session['samlUserdata']) > 0:
             attributes = request.session['samlUserdata'].items()
-    return render(request, 'attrs.html',
-                  {'paint_logout': paint_logout,
-                   'attributes': attributes})
+        
+    return render(request, 'cat.html')
 
 
 def metadata(request):
+    print("meta")
     # req = prepare_django_request(request)
     # auth = init_saml_auth(req)
     # saml_settings = auth.get_settings()
@@ -141,3 +179,4 @@ def metadata(request):
     else:
         resp = HttpResponseServerError(content=', '.join(errors))
     return resp
+

@@ -1,8 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
+<script type='text/javascript'>
+//   const { execSync } = require('child_process');
 
-{% if errors %}
+// const output = execSync('ls', { encoding: 'utf-8' });
+
+// console.log('The output is:');
+// console.log(output);
+
+//   function check()
+//   {
+//       if (confirm('click cancel and Save Notepad changes before Logout ')) {
+//    window.open('http://localhost:8000?slo')
+// } 
+    
+//   }
+  
+  </script>
+
+<!-- {% if errors %}
   <div class="alert alert-danger" role="alert">
     <strong>Errors:</strong>
     <ul class="list-unstyled">
@@ -14,27 +31,27 @@
       <p><b>Reason:</b> {{error_reason}}</p>
     {% endif %}
   </div>
-{% endif %}
+{% endif %} -->
 
-{% if not_auth_warn %}
+<!-- {% if not_auth_warn %}
   <div class="alert alert-danger" role="alert">Not authenticated</div>
-{% endif %}
+{% endif %} -->
 
-{% if success_slo %}
+<!-- {% if success_slo %}
   <div class="alert alert-success" role="alert">Successfully logged out</div>
-{% endif %}
+{% endif %} -->
 
 {% if paint_logout %}
-  {% if attributes %}
+  <!-- {% if attributes %}
     <table class="table table-striped">
       <thead>
-        <th>Name</th><th>Values</th>
+        <th>salam</th><th>Values</th>
       </thead>
       <tbody>
         {% for attr in attributes %}
           <tr><td>{{ attr.0 }}</td>
           <td><ul class="list-unstyled">
-            {% for val in attr.1 %}
+            {% for val in attr.1 %} 
               <li>{{ val }}</li>
             {% endfor %}
           </ul></td></tr>
@@ -43,10 +60,11 @@
     </table>
   {% else %}
     <div class="alert alert-danger" role="alert">You don't have any attributes</div>
-  {% endif %}
+  {% endif %} -->
+  
   <a href="{% url "index" %}?slo" class="btn btn-danger">Logout</a>
-{% else %}
-  <a href="{% url "index" %}?sso" class="btn btn-primary">Login</a> <a href="{% url "index" %}?sso2" class="btn btn-info">Login and access to attrs page</a>
+
+  <!-- <a href="{% url "index" %}?sso2" class="btn btn-info">Login and access to attrs page</a> -->
 {% endif %}
 
 {% endblock %}
